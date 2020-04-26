@@ -31,7 +31,7 @@ Kami mengasumsikan bahwa akan ada sebuah fungsi yang akan dipanggil setiap untuk
 
 ``` bash
 void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
-  FILE *f = fopen(logpath, "a"); //open path ke file bbuat naro log
+  FILE *f = fopen(logpath, "a");
   time_t t;	//variabel buat waktu
   struct tm *tmp;	//struct buat tmp
   char timeBuff[100];	//buffer waktu
@@ -51,11 +51,43 @@ void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
 ```
 **Fungsi logFile**
 Fungsi ini akan menuliskan pada log file sesuai dengan format yang sudah di tentukan, Pertama fungsi ini akan mendefinisikan beberapa argumen yang akan menjadi inputnya, dimana tiap argumen ini akan terdefinisi pada setiap pendefinisian atribut system call yaitu:
-* **level** untuk sadjasdp
-* ***cmd** untuk dasihdoas
-* **res** untuk dasihdoas
-* **lenDesc** untuk dasihdoas
-* ***desc[]** untuk dasihdoas
+* **level** untuk mendefinisikan level dari atribut yang berjalan *(INFO/WARNING)*
+* **cmd** untuk menunjukan nama dari atribut yang berjalan
+* **res** adalah sebuah variabel ayng ada di tiap atribut yang berfungsi untuk menyimpan status dari file
+* **lenDesc** untuk mendifiniskan panjang path dari file yang dituju
+* **desc[]** untuk menunjuk absolut path dari file yang dituju
+
+Pertama fungsi ini akan membuka dan membuat (jika belum ada) log filenya itu sendiri 
+``` bash
+FILE *f = fopen(logpath, "a");
+```
+
+``` bash
+time_t t;
+  struct tm *tmp;
+  char timeBuff[100];
+```
+Pendefinisian variabel dan buffer untuk waktu, struct untuk fungsi `strftime()`
+
+```bash
+  time(&t);	//fungsi yang ngereturn waktu dari unix timestamp sampe sekarang
+  tmp = localtime(&t);	//ngambil local time dan di taro di tmp
+  strftime(timeBuff, sizeof(timeBuff), "%y%m%d-%H:%M:%S", tmp);	// nge format waktu yang di representasiin di struct sesuai dengan format yang diinputkan
+```
+Disini kami membuat fungsi ini menyimpan waktu eksekusi pada `timeBUFF[100]` dengan cara menggunakan fungsi `strftime()`, `strftime()` 
+akan me-return sebuah string ke dalam `timeBuff` dengan format yang ada pada argumen 3 sesuai dengan `tmp` pada argumen 4 sebagai variabel yang menyimpan `localtime()` dari time stamp yang didapat dari fungsi `time()`
+
+```bash
+ fprintf(f, "%s::%s::%s::%d", level, timeBuff, cmd, res); //nge write ke dalem file f, yang di write level timebuff cmd sama res
+  for (int i = 0; i < lenDesc; i++) {	//ini buat ngeprint location dari file yang di gunain sama cmd	
+    fprintf(f, "::%s", desc[i]);
+  }
+  fprintf(f, "\n");//masukin new line
+
+  fclose(f);
+```
+Selanjutnya kami akan membuat program untuk melakukan write menggunakan `fprintf()` kedalam *logFile* yang di representasikan dengan 
+variabel **f** yang akan berisika format yang sudah di definiskan soal dengan menggunakan **level** yang akan diberikan oleh tiap atribut
 
 
 **Fungsi *getFileName***
