@@ -6,10 +6,39 @@ Kelompok T08
 
 ---
 ## Table of Contents
+* [Soal 1](#soal-1)
+* [Soal 2](#soal-2)
+* [Soal 3](#soal-3)
 * [Soal 4](#soal-4)
 
 
 ---
+## Soal 1
+
+**Deskripsi**
+**Asumsi Soal**
+**Pembahasan**
+**Kesulitan:**  
+**ScreenShot**  
+**Contoh logging**  
+
+## Soal 2
+
+**Deskripsi**
+**Asumsi Soal**
+**Pembahasan**
+**Kesulitan:**  
+**ScreenShot**  
+**Contoh logging**  
+
+## Soal 3
+
+**Deskripsi**
+**Asumsi Soal**
+**Pembahasan**
+**Kesulitan:**  
+**ScreenShot**  
+**Contoh logging**  
 
 ## Soal 4
 Source Code : [source](https://github.com/DSlite/SoalShiftSISOP20_modul4_T08/blob/master/ssfs.c)
@@ -28,6 +57,10 @@ Dengan format logging:
 Kami mengasumsikan bahwa akan ada sebuah fungsi yang akan dipanggil setiap untuk pendefinisan atribut dari setiap system call yang akan meretun tanggal, waktu serta system call ayng dipanggil dan path file yang di eksekusi. setiap system call akan mendefiniskan *LEVEL* dan **CMD*nya saat memanggil fungsi ini, dan juga beberapa varible yang akan mendefiniskan path dari file yang dituju
 
 **Pembahasan:**
+```bash
+static const char *logpath = "/home/umum/Documents/SisOpLab/fuse_log.txt";
+```
+pertamaa kami melakukan pendefisinian path dari file log yang akan di lanjutkan dengan fungsi logFilenya sendiri
 
 ``` bash
 void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
