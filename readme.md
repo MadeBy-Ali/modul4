@@ -25,9 +25,7 @@ Dengan format logging:
 * *CMD*, *DESC* akan merepresantasikan system call yang terpanggil dan path file yang di eksekusi dengan system call tersebut
 
 **Asumsi Soal:**
-Soal meminta kami untuk membuat program c yang mampu mengkategorikan file secara tidak rekursif dengan beberapa 
-parameter yang sudah ditentukan. Karena diminta untuk adanya thread pada setiap file yang akan di kategorikan, kami 
-mengasumsikan bahwa thread akan menjalankan routinenya pada setiap absolut path yang diambil dari sebuah variabel yang menyimpannya terlebih dahulu dan bukan langsung dari dari sebuah fungsi yang me-return absolut path 
+Kami mengasumsikan bahwa akan ada sebuah fungsi yang akan dipanggil setiap untuk pendefinisan atribut dari setiap system call yang akan meretun tanggal, waktu serta system call ayng dipanggil dan path file yang di eksekusi. setiap system call akan mendefiniskan *LEVEL* dan **CMD*nya saat memanggil fungsi ini, dan juga beberapa varible yang akan mendefiniskan path dari file yang dituju
 
 **Pembahasan:**
 
@@ -51,20 +49,14 @@ void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
   fclose(f);
 }
 ```
-* `#include <sys/types.h>` Library tipe data khusus (e.g. pid_t)
-* `#include <sys/stat.h>` LIbrary untuk penddeklarasian fungsi stat() dan semacamnya (e.g.fstat() and lstat())  
-* `#include <stdio.h>` Library untuk fungsi input-output (e.g. printf(), sprintf())
-* `#include <stdlib.h>` Library untuk fungsi umum (e.g. exit(), atoi())
-* `#include <unistd.h>` Llibrary untuk melakukan system call kepada kernel linux (e.g. fork())
-* `#include <string.h>` Library untuk pendefinisian berbagai fungsi untuk manipulasi array karakter (e.g. strtok())
-* `#include <ctype.h>` Library untuk pendefinisian berbagai fungsi untuk karakter handling(e.g.tolower())
-* `#include <dirent.h>` Library untuk merepresentasikan directory stream & struct dirent(e.g. struct dirent *entry)
-* `#include <pthread.h>` Library untuk operasi thread (e.g. pthread_create(), ptrhead_exit() )
-* `#include <errno.h>` Library untuk error handling (e.g. errno)
+**Fungsi logFile**
+Fungsi ini akan menuliskan pada log file sesuai dengan format yang sudah di tentukan, Pertama fungsi ini akan mendefinisikan beberapa argumen yang akan menjadi inputnya, dimana tiap argumen ini akan terdefinisi pada setiap pendefinisian atribut system call yaitu:
+* **level** untuk sadjasdp
+* ***cmd** untuk dasihdoas
+* **res** untuk dasihdoas
+* **lenDesc** untuk dasihdoas
+* ***desc[]** untuk dasihdoas
 
-
-Pertama kami melakukan pendefinisian 3 fungsi dan 1 routine(thread) untuk program ini yaitu: `getFileName`,
-`getExtension`, `dirChecking` dan `routine`.
 
 **Fungsi *getFileName***
 ``` bash
