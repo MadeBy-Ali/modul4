@@ -32,19 +32,19 @@ Kami mengasumsikan bahwa akan ada sebuah fungsi yang akan dipanggil setiap untuk
 ``` bash
 void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
   FILE *f = fopen(logpath, "a");
-  time_t t;	//variabel buat waktu
-  struct tm *tmp;	//struct buat tmp
-  char timeBuff[100];	//buffer waktu
+  time_t t;	
+  struct tm *tmp;
+  char timeBuff[100];
 
-  time(&t);	//fungsi yang ngereturn waktu dari unix timestamp sampe sekarang
-  tmp = localtime(&t);	//ngambil local time dan di taro di tmp
-  strftime(timeBuff, sizeof(timeBuff), "%y%m%d-%H:%M:%S", tmp);	// nge format waktu yang di representasiin di struct sesuai dengan format yang diinputkan
+  time(&t);
+  tmp = localtime(&t);
+  strftime(timeBuff, sizeof(timeBuff), "%y%m%d-%H:%M:%S", tmp);
 
-  fprintf(f, "%s::%s::%s::%d", level, timeBuff, cmd, res); //nge write ke dalem file f, yang di write level timebuff cmd sama res
-  for (int i = 0; i < lenDesc; i++) {	//ini buat ngeprint location dari file yang di gunain sama cmd	
+  fprintf(f, "%s::%s::%s::%d", level, timeBuff, cmd, res); 
+  for (int i = 0; i < lenDesc; i++) {	
     fprintf(f, "::%s", desc[i]);
   }
-  fprintf(f, "\n");//masukin new line
+  fprintf(f, "\n");
 
   fclose(f);
 }
