@@ -6,40 +6,23 @@ Kelompok T08
 
 ---
 ## Table of Contents
-* [Soal 3](#soal-3)
 * [Soal 4](#soal-4)
-  * [soal 4 a](#Soal-4.a.)
-  * [soal 4 b](#Soal-4.b.)
-  * [soal 4 c](#Soal-4.c.)
 
  
 ---
 
-## Soal 3
+## Soal 4
 Source Code : [source](https://github.com/DSlite/SoalShiftSISOP20_modul3_T08/blob/master/soal3/soal3.c)
 
 **Deskripsi:**
-Soal meminta kami untuk membuat sebuah program dari C untuk mengkategorikan file. Program ini akan memindahkan 
-file sesuai ekstensinya (tidak case sensitive. JPG dan jpg adalah sama) ke dalam folder sesuai ekstensinya 
-yang folder hasilnya terdapat di working directory ketika program kategori tersebut dijalankan. Terdapat 3
-arguman yang dapat di inputkan yaitu **(-f)**, **(*)** dan **(-d)**. Dengan ketentuan sebagai berikut:  
+Soal meminta kami untuk membuat sebuah log system yang akan membuat sebuah log file bernama "fs.log" di direktori *home* user yang berguna untuk menyimpan daftar perintah system call yang telah dijalankan.
+Disini pencatatan pada log dibagi menjadi dua level yaitu **warning** untuk system call `rmdir`& `unlink`dan **info** untuk system call sisanya
 
-    * (-f) : 
-                 *  user bisa menambahkan argumen file yang bisa dikategorikan sebanyak yang user inginkan  
-                 *  Pada program kategori tersebut, folder jpg,c,zip tidak dibuat secara manual,
-                    melainkan melalui program c. Semisal ada file yang tidak memiliki ekstensi,
-                    maka dia akan disimpan dalam folder “Unknown”.  
-
-    * (-d) :  
-                 *  user hanya bisa menginputkan 1 directory saja.
-                 *  Hasilnya perintah di atas adalah mengkategorikan file di /path/to/directory dan
-                    hasilnya akan disimpan di working directory di mana program C tersebut
-                    berjalan (hasil kategori filenya bukan di /path/to/directory).
-                 *  Program ini tidak rekursif.
-                 *  Setiap 1 file yang dikategorikan dioperasikan oleh 1 thread
-
-    * (*) :  
-                 *  mengkategorikan seluruh file yang ada di working directory
+Dengan format logging:
+`[LEVEL]::[yy][mm][dd]-[HH]:[MM]:[SS]::[CMD]::[DESC ...]`
+* *yy*,*mm*,*dd* akan merepresentasikan tanggal systemcall terpanggil
+* *HH*,*MM*, *SS* akan merepresantasikan waktu systemcall terpanggil
+* *CMD*, *DESC* akan merepresantasikan system call yang terpanggil dan path file yang di eksekusi dengan system call tersebut
 
 **Asumsi Soal:**
 Soal meminta kami untuk membuat program c yang mampu mengkategorikan file secara tidak rekursif dengan beberapa 
