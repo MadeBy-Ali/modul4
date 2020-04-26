@@ -665,12 +665,24 @@ akan menjadi `read end` dari output parrent proccess
 
 **Pembahasan:**
 ```bash
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<sys/types.h>
-#include<string.h>
-#include<sys/wait.h>
+void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
+  FILE *f = fopen(logpath, "a"); //open path ke file bbuat naro log
+  time_t t;	//variabel buat waktu
+  struct tm *tmp;	//struct buat tmp
+  char timeBuff[100];	//buffer waktu
+
+  time(&t);	//fungsi yang ngereturn waktu dari unix timestamp sampe sekarang
+  tmp = localtime(&t);	//ngambil local time dan di taro di tmp
+  strftime(timeBuff, sizeof(timeBuff), "%y%m%d-%H:%M:%S", tmp);	// nge format waktu yang di representasiin di struct sesuai dengan format yang diinputkan
+
+  fprintf(f, "%s::%s::%s::%d", level, timeBuff, cmd, res); //nge write ke dalem file f, yang di write level timebuff cmd sama res
+  for (int i = 0; i < lenDesc; i++) {	//ini buat ngeprint location dari file yang di gunain sama cmd	
+    fprintf(f, "::%s", desc[i]);
+  }
+  fprintf(f, "\n");//masukin new line
+
+  fclose(f);
+}
 ```
 * `#include <stdio.h>` Library untuk fungsi input-output (e.g. printf(), sprintf())
 * `#include <stdlib.h>` Library untuk fungsi umum (e.g. exit(), atoi())
