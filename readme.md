@@ -26,11 +26,11 @@ Yang dimana setiap directory yang sudah terenkripsi akan ter-dekrip jika namanya
 Kami mengasumsikan bahwa
 
 **Pembahasan**  
-Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, kondisi
-jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write untuk
+Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write,(.....) yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, k
+kondisi jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write
 
-Setiap system call akan menggunakan fungsi yang bernama `changePath()` yang berfungsi untuk dekripsi dan melakukan pengecekan untuk 
-setiap pathfile extension dan directory   
+Setiap system call akan menggunakan fungsi `changePath()` `getDirAndFile()` yang berfungsi untuk dekripsi dan melakukan pengecekan untuk 
+setiap pathfile extension dan directory  
 
 
 **Fungsi changePath**
@@ -96,6 +96,13 @@ void changePath(char *fpath, const char *path, int isWriteOper, int isFileAsked)
   if (ptr != NULL) {
     if (strstr(ptr+1, "/") != NULL) state = 1;
 ```
+Pertama tama kami mendefinisikan fungsi ini dengan 4 argumen input, Argumen pertama sebagai fpath yang nanti akan didefinisikan berbeda 
+pada beberapa system call yang menggunakan fungsi ini, Argumen kedua sebagai path dari file/directory yang dibuat/direname, Argumen 
+ketiga dan keempat adalah untuk menentukan kondisi system call yang dijalanakan (kondisi 0.1 , 1.0 & 0.0)
+
+Terdapat dua kondisi `state`, dengan defalut *0*, state ini berfungsi untuk path yang hanya memiliki satu directory setelah `encv_1` 
+CONTOH: *encv_/sisop*, dan *1* untuk path yang masih berlanjut setelah `encv_1` CONTOH: *encv1_/document/sisop*
+
 
 ```bash
 }
@@ -108,6 +115,8 @@ void changePath(char *fpath, const char *path, int isWriteOper, int isFileAsked)
     strcpy(pathEncryptedBuff, ptr);
     strncpy(pathEncvDirBuff, path, ptr-path);
 ```
+Pendefinisian buffer `fixpath[]` yang digunakan untuk menyimpan proccessed path dari tiap kondisi yang berbeda. `if()` disini akan 
+berjalan untuk kondisi (1.0 & 0.1) yang akan mendefinisikan dan mengisi buffer untuk `directory` dan `encv1_`
 
 ```bash
 if (isWriteOper) {
@@ -117,6 +126,8 @@ if (isWriteOper) {
       decrypt(pathDirBuff, 0);
       sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
 ```
+Dalam kondisi (1.0) atau hanya `isWriteOper` yang memiliki nilai, maka `if()` disini akan mendefinisikan buffer untuk `file` dan 
+`directory`
 
 ```bash
 } else if (isFileAsked) {
@@ -154,7 +165,6 @@ else {
     sprintf(fpath, "%s%s", dirpath, fixPath);
   }
 }
-```
 ```
 
 
