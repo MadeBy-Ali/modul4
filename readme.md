@@ -14,10 +14,152 @@ Kelompok T08
 
 ---
 ## Soal 1
+Source Code : [source](https://github.com/DSlite/SoalShiftSISOP20_modul4_T08/blob/master/ssfs.c)
 
 **Deskripsi**
+Soal meminta kami untuk membuat sebuah metode enkripsi caesar chipher yang berjalan jika sebuah directory dibuat atau direname dengan 
+awalan "encv_1" dengan key 
+`9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ETt$3J-zpc]lnh8,GwP_ND|jO`
+Yang dimana setiap directory yang sudah terenkripsi akan ter-dekrip jika namanya di rename. Setiap penggunaan "mkdir" atau "rename" maka akan tercatat kedalam log file, metode enkripsi disini haarus mengabaikan "/" pada penamaan file dan metode ini berlaku untuk setiap directory yang ada di dalam suatu directory
+
+
 **Asumsi Soal**
+Kami mengasumsikan bahwa
+
 **Pembahasan**
+Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, kondisi
+jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write untuk
+
+Setiap system call akan menggunakan fungsi yang bernama `changePath()` yang berfungsi untuk dekripsi dan melakukan pengecekan untuk 
+setiap pathfile extension dan directory   
+
+
+**Fungsi changePath**
+```bash
+void changePath(char *fpath, const char *path, int isWriteOper, int isFileAsked) {
+  char *ptr = strstr(path, "/encv1_");
+  int state = 0;
+  if (ptr != NULL) {
+    if (strstr(ptr+1, "/") != NULL) state = 1;
+  }
+  char fixPath[1000];
+  memset(fixPath, 0, sizeof(fixPath));
+  if (ptr != NULL && state) {
+    ptr = strstr(ptr+1, "/");
+    char pathEncvDirBuff[1000];
+    char pathEncryptedBuff[1000];
+    strcpy(pathEncryptedBuff, ptr);
+    strncpy(pathEncvDirBuff, path, ptr-path);
+    if (isWriteOper) {
+      char pathFileBuff[1000];
+      char pathDirBuff[1000];
+      getDirAndFile(pathDirBuff, pathFileBuff, pathEncryptedBuff);
+      decrypt(pathDirBuff, 0);
+      sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
+    } else if (isFileAsked) {
+      char pathFileBuff[1000];
+      char pathDirBuff[1000];
+      char pathExtBuff[1000];
+      getDirAndFile(pathDirBuff, pathFileBuff, pathEncryptedBuff);
+      char *whereIsExtension = strrchr(pathFileBuff, '.');
+      if (whereIsExtension-pathFileBuff <= 1) {
+        decrypt(pathDirBuff, 0);
+        decrypt(pathFileBuff, 0);
+        sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
+      } else {
+        char pathJustFileBuff[1000];
+        memset(pathJustFileBuff, 0, sizeof(pathJustFileBuff));
+        strcpy(pathExtBuff, whereIsExtension);
+        snprintf(pathJustFileBuff, whereIsExtension-pathFileBuff+1, "%s", pathFileBuff);
+        decrypt(pathDirBuff, 0);
+        decrypt(pathJustFileBuff, 0);
+        sprintf(fixPath, "%s%s/%s%s", pathEncvDirBuff, pathDirBuff, pathJustFileBuff, pathExtBuff);
+      }
+    } else {
+      decrypt(pathEncryptedBuff, 0);
+      sprintf(fixPath, "%s%s", pathEncvDirBuff, pathEncryptedBuff);
+    }
+  } else {
+    strcpy(fixPath, path);
+  }
+  if (strcmp(path, "/") == 0) {
+    sprintf(fpath, "%s", dirpath);
+  } else {
+    sprintf(fpath, "%s%s", dirpath, fixPath);
+  }
+}
+```
+
+```bash
+void changePath(char *fpath, const char *path, int isWriteOper, int isFileAsked) {
+  char *ptr = strstr(path, "/encv1_");
+  int state = 0;
+  if (ptr != NULL) {
+    if (strstr(ptr+1, "/") != NULL) state = 1;
+```
+
+```bash
+}
+  char fixPath[1000];
+  memset(fixPath, 0, sizeof(fixPath));
+  if (ptr != NULL && state) {
+    ptr = strstr(ptr+1, "/");
+    char pathEncvDirBuff[1000];
+    char pathEncryptedBuff[1000];
+    strcpy(pathEncryptedBuff, ptr);
+    strncpy(pathEncvDirBuff, path, ptr-path);
+```
+
+```bash
+if (isWriteOper) {
+      char pathFileBuff[1000];
+      char pathDirBuff[1000];
+      getDirAndFile(pathDirBuff, pathFileBuff, pathEncryptedBuff);
+      decrypt(pathDirBuff, 0);
+      sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
+```
+
+```bash
+} else if (isFileAsked) {
+      char pathFileBuff[1000];
+      char pathDirBuff[1000];
+      char pathExtBuff[1000];
+      getDirAndFile(pathDirBuff, pathFileBuff, pathEncryptedBuff);
+      char *whereIsExtension = strrchr(pathFileBuff, '.');
+      if (whereIsExtension-pathFileBuff <= 1) {
+        decrypt(pathDirBuff, 0);
+        decrypt(pathFileBuff, 0);
+        sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
+      } else {
+        char pathJustFileBuff[1000];
+        memset(pathJustFileBuff, 0, sizeof(pathJustFileBuff));
+        strcpy(pathExtBuff, whereIsExtension);
+        snprintf(pathJustFileBuff, whereIsExtension-pathFileBuff+1, "%s", pathFileBuff);
+        decrypt(pathDirBuff, 0);
+        decrypt(pathJustFileBuff, 0);
+        sprintf(fixPath, "%s%s/%s%s", pathEncvDirBuff, pathDirBuff, pathJustFileBuff, pathExtBuff);
+      }
+```
+
+```bash
+else {
+      decrypt(pathEncryptedBuff, 0);
+      sprintf(fixPath, "%s%s", pathEncvDirBuff, pathEncryptedBuff);
+    }
+  } else {
+    strcpy(fixPath, path);
+  }
+  if (strcmp(path, "/") == 0) {
+    sprintf(fpath, "%s", dirpath);
+  } else {
+    sprintf(fpath, "%s%s", dirpath, fixPath);
+  }
+}
+```
+```
+
+
+
 **Kesulitan:**  
 **ScreenShot**  
 **Contoh logging**  
