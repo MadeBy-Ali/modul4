@@ -16,16 +16,16 @@ Kelompok T08
 ## Soal 1
 Source Code : [source](https://github.com/DSlite/SoalShiftSISOP20_modul4_T08/blob/master/ssfs.c)
 
-**Deskripsi**
+**Deskripsi**  
 Soal meminta kami untuk membuat sebuah metode enkripsi caesar chipher yang berjalan jika sebuah directory dibuat atau direname dengan 
 awalan "encv_1" dengan key ```bash9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ETt$3J-zpc]lnh8,GwP_ND|jO```
 Yang dimana setiap directory yang sudah terenkripsi akan ter-dekrip jika namanya di rename. Setiap penggunaan "mkdir" atau "rename" maka akan tercatat kedalam log file, metode enkripsi disini haarus mengabaikan "/" pada penamaan file dan metode ini berlaku untuk setiap directory yang ada di dalam suatu directory
 
 
-**Asumsi Soal**
+**Asumsi Soal**  
 Kami mengasumsikan bahwa
 
-**Pembahasan**
+**Pembahasan**  
 Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, kondisi
 jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write untuk
 
