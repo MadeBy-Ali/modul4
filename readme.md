@@ -29,9 +29,8 @@ Kami mengasumsikan bahwa
 Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write,(.....) yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, k
 kondisi jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write
 
-Setiap system call akan menggunakan fungsi `changePath()` `getDirAndFile()` yang berfungsi untuk dekripsi dan melakukan pengecekan untuk 
-setiap pathfile extension dan directory  
-
+Setiap system call akan menggunakan fungsi `changePath()` `getDirAndFile()` `decrypt()` yang berfungsi untuk dekripsi dan melakukan 
+pengambilan juga pengecekan untuk setiap pathfile extension dan directory  
 
 **Fungsi changePath**
 ```bash
@@ -126,8 +125,10 @@ if (isWriteOper) {
       decrypt(pathDirBuff, 0);
       sprintf(fixPath, "%s%s/%s", pathEncvDirBuff, pathDirBuff, pathFileBuff);
 ```
-Dalam kondisi (1.0) atau hanya `isWriteOper` yang memiliki nilai, maka `if()` disini akan mendefinisikan buffer untuk `file` dan 
-`directory`
+Dalam kondisi (1.0) atau hanya **isWriteOper** yang memiliki nilai, `if()` disini akan mendefinisikan buffer untuk *file* dan 
+*directory* dan menjalankan fungsi `getDirAndFile()` yang akan me-return directory dan file berdasarkan dari path yang ada di 
+`pathEncryptedBuff` dan akan men `decrypt()`nya yang selanjutnya akan di store di buffer `fixpath[]` dengan format 
+`(encv1_,pathdir,pathfile)`
 
 ```bash
 } else if (isFileAsked) {
@@ -150,9 +151,20 @@ Dalam kondisi (1.0) atau hanya `isWriteOper` yang memiliki nilai, maka `if()` di
         sprintf(fixPath, "%s%s/%s%s", pathEncvDirBuff, pathDirBuff, pathJustFileBuff, pathExtBuff);
       }
 ```
+`else if()` disini akan berjalan untuk kondisi (0.1) atau hanya **isFileAsked**nya saja yang memiliki nilai, yang akan menstore buffer 
+*Dir*, *esxtension* dan *File* yang sebelumnya sudah di definisikan. Yang pertama di store adalah *dir* dan *file* menggunakan 
+`getDirAndFile(pathDirBuff, pathFileBuff, pathEncryptedBuff)`. Untuk mencari *extention* dari path yang ditentukan, akan di lakukan 
+pengecekan karakter terlebih dulu menggunakan `if (whereIsExtension-pathFileBuff <= 1)`, karena di kondisi ini nama path sudah di enkripsi dan ada kemungkinan munculnya karakter "." yang akan mempersulit proses dekripsi.  
 
-```bash
-else {
+sebelumnya fungsi `strrchr()` sudah digunakan untuk me-return pointer yang menunjuk ke semua karakter setelah ditemukannya karakter "."
+sehingga selanjutnya dapat langsung dilakukan dekripsi untuk string yang hanya memiliki satu atau nol karakter "." dan di store ke buffer 
+`fixpath[]` 
+untuk string yang memiliki lebih dari satu karakter "." akan dilakukan `snprintf()` sebanyak ` whereIsExtension-pathFileBuff+1` dan 
+akan di store ke dalam buffer `pathJustFileBuff[]` yang akan berisi extenxion saja dan seperti sebelumnya, akan dimasukan ke fix path
+dengan format `(encv1_, dir, file & extension)`
+
+```bash 
+    else {
       decrypt(pathEncryptedBuff, 0);
       sprintf(fixPath, "%s%s", pathEncvDirBuff, pathEncryptedBuff);
     }
@@ -166,6 +178,69 @@ else {
   }
 }
 ```
+`else` pertama disini adalah untuk kondisi `(0.0)` atau  **isWriteOper** dan **isFileAsked** == 0, sehingga isi dalam buffer 
+`pathEncryptedBuff` akan langsung di dekrip dan di store kedalam `fixpath` dengan format `(encv1_, decrypted path)`
+
+`else` kedua adalah untuk kondisi `state` == 0 atau hanya ada **satu** directory ataupun file pada path setelah `encv1_`, sehingga akan 
+langsung di store kedalam `fixpath`
+
+selanjutnya adalah pengisian `fpath` dengan parameter "/" yang ada di path. `fixpath` yang sudah didapatkan berdasarkan kondisi yang 
+diberikan oleh system call akan dimasukan kedalam `fpath` **jika "/" pada path > 1** disini mengindikasikan ada nya file/directory yang 
+dituju setelah `encv1_`. Sebaliknya makan `fpath` hanya akan di isi dengan `dirpath` yang sudah di set di awal 
+`(*dirpath = "/home/umum/Documents/SisOpLab/FUSE")`
+
+**Fungsi getDirAndfile**
+``` bash 
+void getDirAndFile(char *dir, char *file, char *path) {   
+  char buff[1000];
+  memset(dir, 0, 1000);
+  memset(file, 0, 1000);
+  strcpy(buff, path);
+  char *token = strtok(buff, "/");
+  while(token != NULL) {
+    sprintf(file, "%s", token);
+    token = strtok(NULL, "/");
+    if (token != NULL) {
+      sprintf(dir, "%s/%s", dir, file);
+    }
+  }
+}
+```
+Fungsi ini akan membagi path menjadi beberapa token berdasarkan "/" menggunakan fungsi `strtok()`, `while()` pertama disini, berfungsi 
+untuk mengambil memasukan setiap token sampai terakhir ke buffer **file** yang sudah di definisikan terlebih dahulu dengan memory 
+tertentu menggunakan `memset(file, 0, 1000)` 
+
+`if()` akan berfungsi untuk memasukan `dir` yang diberikan oleh system call kedalam kedalam buffer **dir** yang sudah di definisikan 
+terlebih dahulu dengan memory tertentu menggunakan `memset(dir, 0, 1000)` yang akan di tambahkan buffer **file** dibelakangnya yang
+menjadikannya sebagai absolut path
+
+**Fungsi Decrypt**
+```bash
+void decrypt(char *path, int isEncrypt) {  
+  char *cursor = path;
+  while (cursor-path < strlen(path)) {
+    char *ptr = strchr(key, *cursor);
+    if (ptr != NULL) {
+      int index = (ptr-key+strlen(key)-10)%strlen(key);
+      if (isEncrypt) index = (ptr-key+strlen(key)+10)%strlen(key);
+      *cursor = *(key+index);
+    }
+    cursor++;
+  }
+}
+```
+Pada fungsi decrypt ini, terdapat `isEncrypt` pada argumen kedua yang akan merubah fungsi ini menjadi enkripsi dari path yang dituju jika 
+`isEncyrpt` memiliki nilai atau **(path, 1)** 
+
+`while()` disini akan berjalan untuk setiap karakter yang ada di `path` selama panjang dair kursor < panjang path dan melakukan enkripsi/
+dekripsi sesuai kondisi yang berjalan, fungsi ini akan men dekrip dengan `int index = (ptr-key+strlen(key)-10)%strlen(key)` dan 
+**cursor** akan di increment
+
+Jika kondisi yang berjalan **(path, 1)** maka `if()`kedua akan berjalan dimana akan melakukan enkripsi dengan
+`index = (ptr-key+strlen(key)+10)%strlen(key)` dan cursor akan diganti dengan hasil penjumlahan `key` dan `index`
+
+Dari ketiga fungsi tersebut
+
 
 
 
