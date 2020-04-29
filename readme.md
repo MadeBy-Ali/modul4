@@ -26,8 +26,9 @@ Yang dimana setiap directory yang sudah terenkripsi akan ter-dekrip jika namanya
 Kami mengasumsikan bahwa
 
 **Pembahasan**  
-Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu mkdir,create dan write,(.....) yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang ditentukan, k
-kondisi jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan write
+Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu `mkdir`,
+`create` dan `write`,(.....) yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang 
+ditentukan ,kondisi jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan melakukan write
 
 Setiap system call akan menggunakan fungsi `changePath()` `getDirAndFile()` `decrypt()` yang berfungsi untuk dekripsi dan melakukan 
 pengambilan juga pengecekan untuk setiap pathfile extension dan directory  
@@ -238,8 +239,105 @@ dekripsi sesuai kondisi yang berjalan, fungsi ini akan men dekrip dengan `int in
 
 Jika kondisi yang berjalan **(path, 1)** maka `if()`kedua akan berjalan dimana akan melakukan enkripsi dengan
 `index = (ptr-key+strlen(key)+10)%strlen(key)` dan cursor akan diganti dengan hasil penjumlahan `key` dan `index`
+  
+**Fungsi nextSync**
+```bash
+void nextSync(char *syncDirPath) {  //ini buat nomor 3
+  char buff[1000];
+  char construct[1000];
+  memset(construct, 0, sizeof(construct));
+  strcpy(buff, syncDirPath);
+  int state = 0;
+  char *token = strtok(buff, "/");
+}
+```
 
-Dari ketiga fungsi tersebut
+```bash
+while (token != NULL) {
+    char tBuff[1000];
+    char get[1000];
+    strcpy(tBuff, token);
+    if (!state) {
+      if (strstr(tBuff, "sync_")-tBuff == 0) {
+        strcpy(get, tBuff+5);
+      } else {
+        sprintf(get, "sync_%s", tBuff);
+        state = 1;
+      }
+    } else {
+      strcpy(get, tBuff);
+    }
+    sprintf(construct, "%s/%s", construct, get);
+    token = strtok(NULL, "/");
+  }
+```
+
+```bash
+  memset(syncDirPath, 0, 1000);
+  sprintf(syncDirPath, "%s", construct);
+```
+
+**System call**
+Ketiga fungsi tersebut dipanggil oleh beberapa system call diantaranya 
+
+**_mkdir** 
+```bash
+static int _mkdir(const char *path, mode_t mode)
+{
+	char fpath[1000];
+	changePath(fpath, path, 1, 0);
+
+  char *ptr = strrchr(path, '/'); // strrchr intinya ngambil / terakhir sampe paling belakang
+  char *filePtr = strstr(ptr, "/encv1_");  //nah baru dah, dari "encv1_" kebelakang di tunjuk *fileptr
+  if (filePtr != NULL) {    //kalo ada encv1_ if ini jalan artinya user make encv1 masuk ke log
+    if (filePtr - ptr == 0) {
+      const char *desc[] = {path};
+      logFile("SPECIAL", "ENCV1", 0, 1, desc);
+    }
+  }
+```
+System call ini berfungsi untuk menghandle pembuatan direktori, pertama tama system call akan melakukan pengecekan jika ada pembuatan direktori dengan nama `encv1_` dengan menggunakan fungsi `strstr(ptr, "/encv1_")` yang menyimpan path setelah karakter `encv1_`
+
+selanjutnya pada fungsi `if()` akan dilakukan pengecekan pembuatan direktori yang diawali `encv1_`, jika tervalidasi adanya pembuatan dengan nama direktori tersebut maka fungsi `logfile()` akan dijalankan dengan ke 5 argumennya dan path akan di tunjuk oleh pointer `*desc[]` yang akan digunakan untuk mengisi kolom ke 5 dari output `logFile` yang akan dijelasakan pada [Soal 4](#soal-4)
+
+```bash
+res = mkdir(fpath, mode);
+
+  char syncOrigPath[1000];
+  char syncDirPath[1000];
+  char syncFilePath[1000];
+
+  memset(syncOrigPath, 0, sizeof(syncOrigPath));
+  strcpy(syncOrigPath, path);
+  getDirAndFile(syncDirPath, syncFilePath, syncOrigPath);
+  memset(syncOrigPath, 0, sizeof(syncOrigPath));
+  strcpy(syncOrigPath, syncDirPath);
+```
+Pendefinisian dan set size buffer untuk **direktori**, **file** dan buffer **syncOrigPath** yang akan menyimpan path asli, path directory 
+dan path file yang synchron
+
+```bash
+do {
+    char syncPath[1000];
+    memset(syncPath, 0, sizeof(syncPath));
+    nextSync(syncDirPath);
+    if (strcmp(syncDirPath, syncOrigPath) == 0) break;
+    changePath(syncPath, syncDirPath, 1, 0);
+    if (access(syncPath, F_OK) == -1) continue;
+    sprintf(syncPath, "%s/%s", syncPath, syncFilePath);
+    mkdir(syncPath, mode);
+  } while (1);
+```
+
+
+```bash
+ const char *desc[] = {path};
+  logFile("INFO", "MKDIR", res, 1, desc);
+
+	if (res == -1) return -errno;
+
+	return 0;
+```
 
 
 
