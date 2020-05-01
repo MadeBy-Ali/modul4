@@ -11,8 +11,11 @@ Kelompok T08
 * [Soal 3](#soal-3)
 * [Soal 4](#soal-4)
 
-[error] (#error-1)
-
+**belum**
+* [belum_syscal_apaja_yangdipake_di_no.1](#belum-awal)
+* [belum_nextsync](#belum-1)
+* [belum_syscal_apaja_yangdipake_di_no.2](#belum-terakhir)
+* [belum_pembahasan_soal3](#belum-1)
 
 ---
 ## Soal 1
@@ -24,18 +27,18 @@ Yang dimana setiap directory yang sudah terenkripsi akan ter-dekrip jika namanya
 
 
 **Asumsi Soal**  
-Kami mengasumsikan bahwa
+......
 
 **Pembahasan**  
 Pertama untuk membuat sebuah metode enkripsi seperti yang sudah di terangkan pada soal. Kami membuat tiga systemcall yaitu `mkdir`,
 `create` dan `write` yang masing masingnya memiliki fungsi untuk handle kondisi jika ada pembuatan directory dengan nama yang 
 ditentukan `(encv1_)`,kondisi jika ada directory yang di rename seusai dengan nama yang sudah di tentukan, dan melakukan write
 
-Setiap system call akan menggunakan fungsi `changePath()` `getDirAndFile()` `decrypt()` yang berfungsi untuk dekripsi dan melakukan 
-pengambilan juga pengecekan untuk setiap pathfile extension dan directory  
+Setiap system call akan menggunakan beberapa fungsiyaitu : [`changePath()`](#Fungsi-changePath), [`getDirAndFile()`]
+(#Fungsi-getDirAndFile), [`decrypt()`](#Fungsi-Decrypt) dan [`nextSync()`](#Fungsi-nextSync) 
 
 Untuk melakukan handle dari enkripsi dan dekripsi itu sendiri kami menggunakan fungsi sebagai berikut:  
-**Fungsi Decrypt**
+## Fungsi Decrypt
 ```bash
 void decrypt(char *path, int isEncrypt) {  
   char *cursor = path;
@@ -64,7 +67,7 @@ diganti dengan key + index
   
 
 Sebelum dilakukan pengecekan karakter `encv1_` pada proses rename atau membuat directory, kami mendefinisikan fungsi untuk mengambil file dandirectory dari path yang ditentukan yang nantinya akan di pergunakan dalam proses enkripsi dekripsi, sebagai berikut:  
-**Fungsi getDirAndfile**
+## Fungsi getDirAndfile
 ``` bash 
 void getDirAndFile(char *dir, char *file, char *path) {   
   char buff[1000];
@@ -89,7 +92,7 @@ terlebih dahulu dengan memory tertentu menggunakan `memset(file, 0, 1000)`
 directory dan akan dimasukan kedalam `dir`  yang sudah diset terlebih dahulu dengan memory tertentu menggunakan `memset(dir, 0, 1000)`.  
   
 Selanjutnya adalah fungsi untuk melakukan pengecekan karakter `encv1_` pada proses rename atau membuat directory, sebagai berikut:  
-**Fungsi changePath**
+## Fungsi changePath
 ```bash
 void changePath(char *fpath, const char *path, int isWriteOper, int isFileAsked) {
   char *ptr = strstr(path, "/encv1_");
@@ -245,44 +248,10 @@ tidak ada metode enkripsi dan dekripsi yang akan dijalankan
 
 selanjutnya adalah kedalam `fpath` dengan parameter "/" yang ada di path. `fixpath` yang sudah didapatkan berdasarkan kondisi yang diberikan oleh system call akan dimasukan kedalam `fpath` **jika "/" pada path > 1**  setelah digabungkan dengan `dirpath` atau lokasi mount pointnya disini mengindikasikan ada nya file/directory yang dituju setelah `encv1_`, atau ada proses enkripsi dan dekripsi.  
 
-**Fungsi nextSync**
-```bash
-void nextSync(char *syncDirPath) {  //ini buat nomor 3
-  char buff[1000];
-  char construct[1000];
-  memset(construct, 0, sizeof(construct));
-  strcpy(buff, syncDirPath);
-  int state = 0;
-  char *token = strtok(buff, "/");
-}
-```
-```bash
-while (token != NULL) {
-    char tBuff[1000];
-    char get[1000];
-    strcpy(tBuff, token);
-    if (!state) {
-      if (strstr(tBuff, "sync_")-tBuff == 0) {
-        strcpy(get, tBuff+5);
-      } else {
-        sprintf(get, "sync_%s", tBuff);
-        state = 1;
-      }
-    } else {
-      strcpy(get, tBuff);
-    }
-    sprintf(construct, "%s/%s", construct, get);
-    token = strtok(NULL, "/");
-  }
-```
-```bash
-  memset(syncDirPath, 0, 1000);
-  sprintf(syncDirPath, "%s", construct);
-```
-
 **Implementasi SystemCall**
 Beberapa pengeimplementsian system call yang kami gunakan untuk nomor 1 diantaranya:  
-**_getattr**
+
+## _getattr
 ```bash
 static int _getattr(const char *path, struct stat *stbuf)  
 {
@@ -314,7 +283,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *GETATTR*, *result* dari lstat, *1* dan *des* yang menunjuk kepada
 path yang tentukan
 
-**_access**  
+## _access 
 ```bash
 static int _access(const char *path, int mask)
 {
@@ -346,7 +315,7 @@ penggunaan system call akan ada sebuah log yang di write kedalam log file menggu
 pendefinisian log adalah dengan level *info*, dengan nama system call *ACCESS*, *result* dari access, *1* dan *des* yang menunjuk kepada
 path yang tentukan
 
-**_mkdir** 
+## _mkdir
 ```bash
 static int _mkdir(const char *path, mode_t mode)
 {
@@ -418,7 +387,7 @@ nama yang sudah tersinkronisasi yang ada pada buffer `syncPath`
 Pada bagian ini kami membuat system call untuk memebuat log file dengan fungsi `logFile()` yang sudah di definisikan di (soal4) dengan
 format `("INFO", "MKDIR", res, 1, desc)` dimana `desc` akan menunjuk kepada path sebagai keterangannya  
   
-**_rename**  
+## _rename  
 System call berfungsi untuk **menghandle rename directory** sesuai dengan nama yang ditentukan (encv1_&encv2_) 
 
 ```bash
@@ -506,10 +475,9 @@ kondisi `(toStartPtr - toPtr == 0)`terpenuhi
 ```
 Pada bagian ini variable `res` akan diisi dengan new name(`fto`) yang didapatkan dari fungsi `rename()`, kemudian akan dilakukan write
 kedalam log file dengan fungsi `(logFile("INFO", "RENAME", res, 2, desc))`. Fungsi `rename()` akan mereturn -1 jika terjadi error dan
-akan mereturn error handling  
+akan mereturn error handling.   
 
-
-**_create**
+## _create
 ```bash
 static int _create(const char *path, mode_t mode,
 struct fuse_file_info *fi)
@@ -528,8 +496,7 @@ filehandler
 ```
 Pertama tama kami menjalankan fungsi `changepath()` dengan kondisi **(1.0)** yang mendfinisikan sebagai process `write`. System call ini 
 akan menyimpan path yang ada pada buffer `fpath` menggunakan field documentation `flags` kedalam variabel `res` yang nantinya akan dirubah
-dengan file handle id `fh` setelah proccess mebuat log, singkronisasi dan membuat original path
-
+dengan file handle id `fh` setelah proccess mebuat log, singkronisasi dan membuat original path.
 
 ```bash
   char syncOrigPath[1000];
@@ -582,7 +549,7 @@ format `("INFO", "CREAT", res, 1, desc)` dimana `desc` akan menunjuk kepada path
 
 Lalu kami menggunakan file handle id `fh` yang akan menyimpan file id dari `res`  
   
-**_write**
+## _write
 ```bash
 static int _write(const char *path, const char *buf, size_t size,
 off_t offset, struct fuse_file_info *fi)
@@ -655,9 +622,7 @@ loop akan berhenti, namun selama belum tersingkronisasi maka fungsi `changePath`
 `if()` kedua akan melakukan pengecekan pembukaan path yang ada di `syncPath` dengan fungsi `access`, jadi selama path ini belum bisa 
 terakses maka loop akan tetap berjalan dan `syncPath` akan di update dengan ditambahkan `syncFilePath`, selanjutnya `syncPath` akan di buka dan di set ke `syncFd`
 
-`if()` ketiga disini akan melakukan pengecekan untuk nilai `syncFd` dimana nilai tidak boleh -1 dan akan melakukan write dari `buf` kedalam `syncFd` dengan size dan offset yang sudah di tentukan, kemudian `syncFd` akan di close
-
-
+`if()` ketiga disini akan melakukan pengecekan untuk nilai `syncFd` dimana nilai tidak boleh -1 dan akan melakukan write dari `buf` kedalam `syncFd` dengan size dan offset yang sudah di tentukan, kemudian `syncFd` akan di close.  
 ```bash
   const char *desc[] = {path};
   logFile("INFO", "WRITE", res, 1, desc);
@@ -674,7 +639,7 @@ format `("INFO", "WRITE", res, 1, desc)` dimana `desc` akan menunjuk kepada path
 kemudian `if()` disini akan memasukan error handling kedalam `res` jika nilainya `-1` dan akan menutup `fd` jika nilai `fi` == NULL atau
 belum ada nilai yang di return kedalam variabel `fi` 
 
-**_rmdir**
+## _rmdir
 ```bash
 static int _rmdir(const char *path)
 {
@@ -771,7 +736,7 @@ const char *desc[] = {path};
 Pada bagian system call membuat log file dengan fungsi `logFile()` yang sudah di definisikan di (soal4) dengan format 
 `("INFO", "MKDIR", res, 1, desc)` dimana `desc` akan menunjuk kepada path sebagai keterangannya. 
 
-**_link**
+## _link
 ```bash
 static int _link(const char *from, const char *to)
 {
@@ -800,7 +765,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *LINK*, *result* dari link, *2* dan *des* yang menunjuk kepada
 path yang tentukan.  
   
-**chmod**
+## _chmod
 ```bash
 static int _chmod(const char *path, mode_t mode)
 {
@@ -835,7 +800,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *CHMOD*, *result* dari `chmod()`, *2* dan *des* yang menunjuk 
 kepada path dan mode yang sudah di tentukan.  
 
-**_chown**
+## _chown
 ```bash
 static int _chown(const char *path, uid_t uid, gid_t gid)
 {
@@ -873,7 +838,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *CHOWN*, *result* dari `chown()`, *3* dan *des* yang menunjuk 
 kepada path yang sudah berisi dua buffer untuk owner dan group tadi.  
   
-**truncate**
+## _truncate
 ```bash
 static int _truncate(const char *path, off_t size)
 {
@@ -906,7 +871,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *TRUNCATE*, *result* dari `truncate()`, *1* dan *des* yang 
 menunjuk kepada path yang sudah ditentukan.    
     
-**utimens**
+## _utimens
 ```bash
 static int _utimens(const char *path, const struct timespec ts[2])
 {
@@ -940,7 +905,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *TRUNCATE*, *result* dari `utimensat()`, *1* dan *des* yang 
 menunjuk kepada path yang sudah ditentukan.  
   
-**open**
+## _open
 ```bash
 static int _open(const char *path, struct fuse_file_info *fi)
 {
@@ -969,7 +934,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *OPEN*, *result* dari `open()`, *1* dan *des* yang menunjuk 
 kepada path yang sudah ditentukan.  
 
-**read**
+## _read
 ```bash
 static int _read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
@@ -1011,7 +976,7 @@ Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log
 pendefinisian log adalah dengan level *info*, dengan nama system call *READ*, *result* dari `pread()`, *1* dan *des* yang menunjuk 
 kepada path yang sudah ditentukan. Terkahir `fd` akan di `close()` jika nilai `fi` NULL
 
-**statfs**
+## _statfs
 ```bash
 static int _statfs(const char *path, struct statvfs *stbuf)
 {
@@ -1037,11 +1002,16 @@ Selanjutnya adalah menjalankan fungsi `statvfs(fpath, stbuf)` itu sendiri yang b
 Pada setiap penggunaan system call akan ada sebuah log yang di write kedalam log file menggunakan fungsi `logFile`, untuk system call ini
 pendefinisian log adalah dengan level *info*, dengan nama system call *STATFS*, *result* dari `statvfs()`, *1* dan *des* yang menunjuk 
 kepada path yang sudah ditentukan.
+## belum awal
+Untuk implementasi dari soal nomor 1, kami menggunakan system call: 
+* [_](#_)
+* [_](#_)
+* [_]
 
 
 **Kesulitan:**  
-**ScreenShot**  
-**Contoh logging**  
+**ScreenShot:**  
+
 
 
 ## Soal 2
@@ -1055,23 +1025,266 @@ jasir. Sebagai contoh, file File_Contoh.txt berukuran 5 kB pada direktori asli a
 File_Contoh.txt.001, File_Contoh.txt.002, File_Contoh.txt.003, dan File_Contoh.txt.004. Dan berlaku untuk setiap isi dari subfolder
 
 **Asumsi Soal**
+.......
+
 **Pembahasan**
+Untuk implementasi soal 2 kami menggunakan 2 fungsi utama yaitu [splitter](#Fungsi-splitter) dan [unsplitter](#Fungsi-unsplitter):
 
-***Fungsi 
+## Fungsi splitter
+Befrungsi untuk melakukan split pada tiap file yang ada di dalam directory secara rekursif jika ada sub direcotry
 
+```bash
+void splitter(char *path) {   //buat nomor 2 nih
+  DIR *dp;
+  struct dirent *de;
+  dp = opendir(path); 
+  while ((de = readdir(dp)) != NULL) {  
+    if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) continue;  
+    char newPath[1000];
+    sprintf(newPath, "%s/%s", path, de->d_name);
+    
+```
+Pertama kami akan membuka path yang di berikan dengan `opendir()` kedalam variable `dp`, selanjutnya `while()` loop akan berjalan untuk 
+masing masing entry sampai habis, kami menggunakan exception untuk karakter `.` dan `..`, akan langsung di `continue`. Selanjutnya kami membuat full path yang baru kepada buffer `newPath` yang berisi `path` dan `de->name` dengan menggunakan fungsi `sprintf(newPath, "%s/%s", path, de->d_name)`.  
 
+```bash
+    if (de->d_type == DT_DIR) { 
+      splitter(newPath);
+    }
+    if (de->d_type == DT_REG) {  
+      FILE *pathFilePointer = fopen(newPath, "rb");
+      fseek(pathFilePointer, 0, SEEK_END);
+      long pathFileSize = ftell(pathFilePointer);
+      rewind(pathFilePointer);
+      struct stat st;
+      lstat(newPath, &st);
+      int index = 0;
+```
+Setelah itu ada pengecekan bentuk entry pada `if (de->d_type == DT_DIR)` yang akan menjalankan `splitter()` pada newpath yang sudah di 
+buat, dalam kata lain system call ini akan berjalan rekursif untuk setiap sub directory 
 
+Kemudian menggunakan `if (de->d_type == DT_REG)` akan dilakukan pengecekan untuk tipe data reguler atau file biasa, untuk setiap file 
+reguler maka akan dibuat path ke file pointernya dengan menggunakan `fopen(newPath, "rb")` kemudian kami menggunakan fungsi `fseek(pathFilePointer, 0, SEEK_END` dan `ftell(pathFilePointer)` untuk mencari tahu size dari file newpath, kemudian pointer akan 
+dikembalikan ke awal menggunakan `rewind(pathFilePointer)`, selanjutnya kami menggunakan `lstat(newPath, &st)` agar access modifiernya 
+sama dengan kondisi awalnya.  
+```bash
+      while(pathFileSize > 0) {
+        char newFileSplit[1000];
+        char buff[1024];
+        sprintf(newFileSplit, "%s.%03d", newPath, index++);
+        close(creat(newFileSplit, st.st_mode));
+        int size;
+        if (pathFileSize >= 1024) {
+          size = 1024;
+          pathFileSize-=1024;
+        } else {
+          size = pathFileSize;
+          pathFileSize = 0;
+        }
+```
+Bagian ini adalah `while ()` loop yang berjalan sampai `pathFileSize` terbaca semua yang dimana akan mendefinisikan buffer `newFileSplit
+[1000]` untuk menyimpan masing masing part dari file yang di split dan buffer `buff[1024]` untuk menyimpan masing masing path yang akan 
+dibaca, kemudian kami menggunakan `sprintf(newFileSplit, "%s.%03d", newPath, index++)` untuk memasukan setiap file yang sudah di split 
+kedalam `newfileSplit` dengan menambahkan `.` dan `%03d` terhadap index, sehinggan setiap splitted file akan memiliki nomor index 
+berbeda sesuai banyak langkah berjalannya fungsi `splitter()` dimana dari tiap tiap entry di `newFileSplit` akan dibuat menjadi sebuah 
+file dengan menggunakan `close(creat(newFileSplit, st.st_mode))` dan akan langsung di close.
 
+Selnjutnya pada bagian `if (pathFileSize >= 1024` kami men-set size menjadi `1024` dan mengurangi `pathFileSize`nya dengan `1024` untuk kondisi `pathFileSize` yang lebih besar sama dengan `1024`, untuk kondisi `pathFileSize` yang kurang dari `1024` maka `pathFileSize` akan diset kedalam `size` dan `pathFileSize` menjadi 0 yang dimana menjelaskan kondisi `while()` diatas
+
+***NOTE:*** Penggunaan `1024` adalah bentuk size dalam byte untuk setiap 1 kb.  
+```bash
+        memset(buff, 0, sizeof(buff));
+        fread(buff, 1, size, pathFilePointer);
+
+        FILE *pathFileOut = fopen(newFileSplit, "wb");
+        fwrite(buff, 1, size, pathFileOut);
+        fclose(pathFileOut);
+      }
+      fclose(pathFilePointer);
+      unlink(newPath);
+    }
+  }
+}
+```
+Pada bagian ini kami men-set memori untuk buffer `buff` yang sudah terdefinisi diatas, kemudian `pathFilePointer` akan dibaca kedalam 
+`buff` sebesar `size` yang sudah di dapat sebelumnya menggunakan fungsi `fread(buff, 1, size, pathFilePointer)` dimana `1` adalah 
+panjang byte yang akan di read.
+
+Selanjutnya kami membuat pointer `pathFileOut()` yang akan menunjuk pada `newFileSplit` dengan mode write byte `wb` menggunakan fungsi
+`fopen(newFileSplit, "wb")`, kemudian `buff` akan di write kedalam `pathFileOut` sebesar `size` menggunakan fungsi `fwrite(buff, 1, size, pathFileOut)` dan setelah semua file terbaca makan `pathFilePointer` akan di close menggunakann fungsi `fclose(pathFilePointer)`
+dan `newPath` akan di unlink menggunakan `unlink(newPath)` agar file di remove.  
+  
+## Fungsi Unsplitter
+Befrungsi untuk menggabungkan setiap splitted file yang ada di dalam directory secara rekursif jika ada sub direcotry.  
+```bash
+void unsplitter(char *path) {
+  DIR *dp;
+  struct dirent *de;
+  dp = opendir(path);
+```
+Pertama kami akan membuka path yang di berikan dengan `opendir()` kedalam variable `dp`.  
+
+```bash
+  while ((de = readdir(dp)) != NULL) {
+    if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) continue;
+    if (de->d_type == DT_DIR) {
+      char newPath[1000];
+      sprintf(newPath, "%s/%s", path, de->d_name);
+      unsplitter(newPath);
+    }
+    if (de->d_type == DT_REG) {
+      char *ptr = strrchr(de->d_name, '.');
+      if (strcmp(ptr, ".000") != 0) continue;
+      char pathFileName[1000];
+      char pathToFile[1000];
+      snprintf(pathFileName, ptr-(de->d_name)+1, "%s", de->d_name);
+      printf("%s\n", pathFileName);
+      sprintf(pathToFile, "%s/%s", path, pathFileName);
+```
+Pada bagian ini `while()` loop akan berjalan untuk masing masing entry sampai habis, kami menggunakan exception untuk karakter 
+`.` dan `..`, akan langsung di `continue`.  
+
+`if()` pertama akan melakukan pengecekan entry data, jika typenya merupakan directory maka akan dibuat full path 
+yang baru kepada buffer `newPath` yang berisi `path` dan `de->name` dengan menggunakan fungsi `sprintf(newPath, "%s/%s", path, 
+de->d_name)` dan menjalankan fungsi `unsplitter` kepada `newpath`, dalam kata lain system call ini akan berjalan rekursif untuk setiap 
+sub directory 
+
+`if()` kedua juga merupakan pengecekan entry data, jika typenya merupakan regular file maka akan di set sebuah pointer yang menunjuk 
+kepada file yang memliki `.000` di bagian belakangnya menggunakan `if (strcmp(ptr, ".000") != 0) continue` karena proses unsplitting ini 
+dumulai dari `file.000`, selain dari kondisi tersebut maka akan di `continue`, lalu kami mendefinisikan dua buffer `pathFileName[1000]` 
+untuk menyimpan masing masing mark dan `pathToFile[1000]` untuk file yang akan di create
+
+Kemudian `pathFileName` akan diisi dengan hanya nama dari filename, tanpa menggunakan ekstensi (.000,.001,...) menggunakan
+`snprintf(pathFileName, ptr-(de->d_name)+1, "%s", de->d_name)` argumen kedua mengindikasikan banyak karakter yang di `snpritf()` yaitu
+mulai dari awal hingga nama file saja
+
+Selanjutnya `path` sebagai path awal dan `pathFileName` akan disatukan dimasukan ke `pathTofile` menggunakan `sprintf(pathToFile, "%s/%s", path, pathFileName)`
+
+```bash
+      char temp[1000];
+      sprintf(temp, "%s.000", pathToFile);
+      struct stat st;
+      lstat(temp, &st);
+      close(creat(pathToFile, st.st_mode));
+      int index = 0;
+      FILE *pathFilePointer = fopen(pathToFile, "wb");
+```
+Pada bagaian ini kami mendefinisikan buffer `temp[1000]` untuk menyimpan stat dari `.000` menggunakan `sprintf(temp, "%s.000", pathToFile)`
+Kemudian untuk setiap isi dari `pathTofile` akan di create dengan st mode yang sudah di dapatkan mengguanakan `close(creat(pathToFile, st.st_mode))` yang kemudian akan di tutup kembali. Selanjutkan kami membuat pointer `pathFilePinter` yang menunjuk kepada isi dari 
+`pathToFile` menggunakan `FILE *pathFilePointer = fopen(pathToFile, "wb")`.  
+
+```bash
+      while (1) {
+        char partName[1000];
+        sprintf(partName, "%s.%03d", pathToFile, index++);
+        if (access(partName, F_OK) == -1) break;
+        FILE *pathToPart = fopen(partName, "rb");
+        fseek(pathToPart, 0, SEEK_END);
+        long pathFileSize = ftell(pathToPart);
+        rewind(pathToPart);
+
+        char buff[1024];
+        fread(buff, 1, pathFileSize, pathToPart);
+        fwrite(buff, 1, pathFileSize, pathFilePointer);
+        fclose(pathToPart);
+        unlink(partName);
+      }
+      fclose(pathFilePointer);
+    }
+  }
+}
+```
+Pada bagian ini adalah infinite looping menggunakan `while(1)` karena jumlah part masih belum di ketahui. Pertama kami akan membuat part 
+name untuk isi dari `pathToFile` dengan menambahkan `%0.3d` berdasarkan index yang di increment menggunakan `sprintf(partName, "%s.%03d", pathToFile, index++)`
+
+Kemudian `if()` disini berfungsi untuk pengecekan part, menggunakan `if (access(partName, F_OK) == -1) break` yang berarti loop akan di 
+`break` jika part sudah habis. Lalu kami membuat pointer yang menunjuk pada isi dari `partName` yang sudah dibuat menggunakan `FILE *pathToPart = fopen(partName, "rb")`. Selanjutnya kami menggunakan `fseek()` dan `ftell()` untuk mencari size dari `pathToPart` dan akan 
+di `rewind` agar kembali keawal.
+
+Lalu kami melakukan read pada `pathToPart` sebesar `pathFileSize` menggunakan `fread(buff, 1, pathFileSize, pathToPart)` yang kemudian 
+akan di write kedalam `pathFilePointer` menggunakan `fwrite(buff, 1, pathFileSize, pathFilePointer`. Selanjutnya `pathToPart` akan di 
+`fclose()` dan `partName` akan di `unlink()` agar terhapus. Terakhir setelah loop selesai pointer `pathFilePointer` akan di `fclose()`.  
+  
+## belum 2
+Untuk implementasi dari soal nomor 2, kami menggunakan beberapa system call yaitu: 
+* [_Rename](#_rename)
+* [_Mkdir](#_mkdir)
+* [_]
+
+beruang
 
 **Kesulitan:**  
 **ScreenShot**  
-**Contoh logging**  
+ 
 
 ## Soal 3
+Source Code : [source](https://github.com/DSlite/SoalShiftSISOP20_modul4_T08/blob/master/ssfs.c)
 
 **Deskripsi**
+Soal meminta kami untuk membuat Sinkronisasi direktori otomatis:
+Tanpa mengurangi keumuman, misalkan suatu directory bernama dir akan tersinkronisasi dengan directory yang memiliki nama yang sama dengan awalan sync_ yaitu sync_dir. Dengan persyaratan :
+* Kedua directory memiliki parent directory yang sama.
+* Kedua directory kosong atau memiliki isi yang sama. Dua directory dapat dikatakan memiliki isi yang sama jika memenuhi:
+  * Nama dari setiap berkas di dalamnya sama.
+  * Modified time dari setiap berkas di dalamnya tidak berselisih lebih dari 0.1 detik.
+* Sinkronisasi dilakukan ke seluruh isi dari kedua directory tersebut, tidak hanya di satu child directory saja.
+* Sinkronisasi mencakup pembuatan berkas/directory, penghapusan berkas/directory, dan pengubahan berkas/directory.
+
+***NOTE:*** Jika persyaratan di atas terlanggar, maka kedua directory tersebut tidak akan tersinkronisasi lagi.
+Implementasi dilarang menggunakan symbolic links dan thread.  
+
 **Asumsi Soal**
+
+
 **Pembahasan**
+## belum 1
+Pada nomor tiga kami menggunakan fungsi `_nextsync` sebagai salah fungsi utamanya
+
+## Fungsi nextSync
+```bash
+void nextSync(char *syncDirPath) {  //ini buat nomor 3
+  char buff[1000];
+  char construct[1000];
+  memset(construct, 0, sizeof(construct));
+  strcpy(buff, syncDirPath);
+  int state = 0;
+  char *token = strtok(buff, "/");
+```
+
+```bash
+  while (token != NULL) {
+    char tBuff[1000];
+    char get[1000];
+    strcpy(tBuff, token);
+```
+
+```bash
+    if (!state) {
+      if (strstr(tBuff, "sync_")-tBuff == 0) {
+        strcpy(get, tBuff+5);
+      } else {
+        sprintf(get, "sync_%s", tBuff);
+        state = 1;
+      }
+```
+
+```bash
+    } else {
+      strcpy(get, tBuff);
+    }
+    sprintf(construct, "%s/%s", construct, get);
+    token = strtok(NULL, "/");
+  }
+  memset(syncDirPath, 0, 1000);
+  sprintf(syncDirPath, "%s", construct);
+}
+```
+## belum terakhir
+Untuk implementasi dari soal nomor 3, kami menggunakan system call: 
+* [_](#_)
+* [_](#_)
+* [_]
+
 **Kesulitan:**  
 **ScreenShot**  
 **Contoh logging**  
@@ -1119,10 +1332,11 @@ void logFile(char *level, char *cmd, int res, int lenDesc, const char *desc[]) {
 }
 ```
 **Fungsi logFile**
-Fungsi ini akan menuliskan pada log file sesuai dengan format yang sudah di tentukan, Pertama fungsi ini akan mendefinisikan beberapa argumen yang akan menjadi inputnya, dimana tiap argumen ini akan terdefinisi pada setiap pendefinisian atribut system call yaitu:
+Fungsi ini akan menuliskan pada log file sesuai dengan format yang sudah di tentukan, Pertama fungsi ini akan mendefinisikan beberapa 
+argumen yang akan menjadi inputnya, dimana setiap argumen ini akan terdefinisi pada setiap pendefinisian atribut system call yaitu:
 * **level** untuk mendefinisikan level dari atribut yang berjalan *(INFO/WARNING)*
 * **cmd** untuk menunjukan nama dari atribut yang berjalan
-* **res** adalah sebuah variabel ayng ada di tiap atribut yang berfungsi untuk menyimpan status dari file
+* **res** adalah sebuah variabel ayng ada di setiap atribut yang berfungsi untuk menyimpan status dari file
 * **lenDesc** untuk mendifiniskan panjang path dari file yang dituju
 * **desc[]** untuk menunjuk absolut path dari file yang dituju
 
@@ -1147,7 +1361,8 @@ Pendefinisian variabel dan buffer untuk waktu, struct untuk fungsi `strftime()`
 ```
 
 Disini kami membuat fungsi ini menyimpan waktu eksekusi pada `timeBUFF[100]` dengan cara menggunakan fungsi `strftime()`, `strftime()` 
-akan me-return sebuah string ke dalam `timeBuff` dengan format yang ada pada argumen 3 sesuai dengan `tmp` pada argumen 4 sebagai variabel yang menyimpan `localtime()` dari time stamp yang didapat dari fungsi `time()`
+akan me-return sebuah string ke dalam `timeBuff` dengan format yang ada pada argumen 3 sesuai dengan `tmp` pada argumen 4 sebagai 
+variabel yang menyimpan `localtime()` dari time stamp yang didapat dari fungsi `time()`
 
 ```bash
  fprintf(f, "%s::%s::%s::%d", level, timeBuff, cmd, res);
@@ -1173,5 +1388,3 @@ selanjutnya penempatan endline dengan `fprintf(f, "\n")` agar tersusun rapih kar
 Tidak ada.
 
 **ScreenShot**  
-
-**Contoh logging**  
